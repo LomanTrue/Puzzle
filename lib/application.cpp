@@ -1,4 +1,6 @@
 #include <iostream>
+#include <SFML/Audio.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 
 #include "puzzle.cpp"
 
@@ -6,11 +8,11 @@ int app(sf::RenderWindow& window) {
   std::string pr_dir = "D:\\Projects\\Puzzle";
 
   sf::Texture puzzle_texture;
-  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\6.png")) {
+  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\5.jpg")) {
     return 1;
   }
 
-  puzzle puzzle1(6, 6, puzzle_texture, sf::Vector2f(100, 100));
+  puzzle puzzle1(2, 2, puzzle_texture, sf::Vector2f(100, 100));
 
   window.clear();
   puzzle1.draw(window);
@@ -43,6 +45,19 @@ int app(sf::RenderWindow& window) {
             window.clear();
             puzzle1.draw(window);
             window.display();
+
+            if (puzzle1.isPuzzleSolved()) {
+              sf::SoundBuffer sound_buffer;
+              if (!sound_buffer.loadFromFile(pr_dir + "\\sounds\\applause.mp3")) {
+                return 1;
+              }
+
+              sf::Sound sound(sound_buffer);
+              sound.play();
+              sf::sleep(sf::seconds(12));
+              window.close();
+              break;
+            }
           }
         }
       }

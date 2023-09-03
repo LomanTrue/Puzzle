@@ -222,3 +222,11 @@ void puzzle::connectPieces(piece& piece_) {
     }
   }
 }
+
+bool puzzle::isPuzzleSolved() {
+  if (dsu_of_pieces.getSize(0) == size) {
+    return true;
+  } else {
+    return false;
+  }
+}

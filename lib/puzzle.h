@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <memory>
 #include <queue>
 #include <vector>
@@ -40,6 +41,7 @@ class puzzle {
  private:
   uint8_t width; //count of pieces in one line
   uint8_t height; //count of pieces in one column
+  uint16_t size; //count of pieces
   std::vector<std::vector<piece>> pieces;
   sf::Texture pic;
   sf::Vector2f start_pos;
@@ -49,6 +51,7 @@ class puzzle {
   puzzle(uint8_t width_, uint8_t height_, sf::Texture& pic_, sf::Vector2f start_pos_): dsu_of_pieces(height_ * width_) {
     width = width_;
     height = height_;
+    size = width_ * height_;
     pic = pic_;
     start_pos = start_pos_;
 
@@ -88,4 +91,5 @@ class puzzle {
   void setPosition(piece& piece_, sf::Vector2f pos_);
   std::vector<sf::Vector2i> getPiecesInUnion(piece& piece_);
   void connectPieces(piece& piece_);
+  bool isPuzzleSolved();
 };
