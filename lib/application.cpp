@@ -8,19 +8,34 @@ int app(sf::RenderWindow& window) {
   std::string pr_dir = "D:\\Projects\\Puzzle";
 
   sf::Texture puzzle_texture;
-  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\4.jpg")) {
+  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\8.jpg")) {
     return 1;
   }
 
-  puzzle puzzle1(4, 4, puzzle_texture, sf::Vector2f(100, 100));
+  puzzle puzzle1(6, 4, puzzle_texture, sf::Vector2f(150, 150));
+
+  sf::Clock timer;
+  sf::Time time;
+
+  sf::Font font;
+  if (font.loadFromFile(pr_dir + "\\fonts\\1.otf"));
+  sf::Text timer_text;
+  timer_text.setFont(font);
+  timer_text.setCharacterSize(30);
+  timer_text.setFillColor(sf::Color::Red);
+  timer_text.setPosition(0,0);
+  time = timer.restart();
+  timer_text.setString("Time: 0.000000");
 
   window.clear();
+  window.draw(timer_text);
   puzzle1.draw(window);
   window.display();
 
   sf::sleep(sf::seconds(2));
 
   puzzle1.shuffle();
+  timer.restart();
 
   while (window.isOpen()) {
     sf::Event event;
@@ -44,6 +59,9 @@ int app(sf::RenderWindow& window) {
               puzzle1.connectPieces(*temp_piece);
               puzzle1.setPosition(*temp_piece, sf::Vector2f(sf::Mouse::getPosition()) - mouse_in_piece_cords);
               window.clear();
+              time = timer.getElapsedTime();
+              timer_text.setString("Time: " + std::to_string(time.asSeconds()));
+              window.draw(timer_text);
               puzzle1.draw(window);
               window.display();
 
@@ -73,6 +91,9 @@ int app(sf::RenderWindow& window) {
     }
 
     window.clear();
+    time = timer.getElapsedTime();
+    timer_text.setString("Time: " + std::to_string(time.asSeconds()));
+    window.draw(timer_text);
     puzzle1.draw(window);
     window.display();
   }
