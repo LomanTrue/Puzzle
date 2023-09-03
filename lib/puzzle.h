@@ -1,6 +1,7 @@
-#include <iostream>
-#include <vector>
 #include <SFML/Graphics.hpp>
+#include <memory>
+#include <queue>
+#include <vector>
 
 #include "DSU.cpp"
 
@@ -85,5 +86,6 @@ class puzzle {
   piece* isMouseInPiece();
   void shuffle();
   void setPosition(piece& piece_, sf::Vector2f pos_);
+  std::vector<sf::Vector2i> getPiecesInUnion(piece& piece_);
   void connectPieces(piece& piece_);
 };

@@ -13,10 +13,10 @@ void DSU::union_sets(uint16_t a, uint16_t b) {
   if (a != b) {
     if (rank[a] < rank[b]) {
       parent[a] = b;
-      rank[b] += a;
+      rank[b] += rank[a];
     } else {
       parent[b] = a;
-      rank[a] += b;
+      rank[a] += rank[b];
     }
   }
 }

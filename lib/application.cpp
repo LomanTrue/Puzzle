@@ -6,11 +6,11 @@ int app(sf::RenderWindow& window) {
   std::string pr_dir = "D:\\Projects\\Puzzle";
 
   sf::Texture puzzle_texture;
-  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\4.jpg")) {
+  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\6.png")) {
     return 1;
   }
 
-  puzzle puzzle1(5, 5, puzzle_texture, sf::Vector2f(100, 100));
+  puzzle puzzle1(6, 6, puzzle_texture, sf::Vector2f(100, 100));
 
   window.clear();
   puzzle1.draw(window);

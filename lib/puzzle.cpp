@@ -109,64 +109,116 @@ void puzzle::setPosition(piece& piece_, sf::Vector2f pos_) {
   }
 }
 
+std::vector<sf::Vector2i> puzzle::getPiecesInUnion(piece& piece_) {
+  uint16_t union_size = dsu_of_pieces.getSize(piece_.getIndex());
+  std::vector<sf::Vector2i> pieces_in_union;
+
+  bool visited_pieces[height][width];
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      visited_pieces[i][j] = false;
+    }
+  }
+
+  std::queue<sf::Vector2i> queue;
+  queue.push(piece_.getPositionInPuzzleMatrix());
+
+  while (!queue.empty()) {
+    sf::Vector2i cur_pos = queue.front();
+    pieces_in_union.push_back(cur_pos);
+    queue.pop();
+    visited_pieces[cur_pos.x][cur_pos.y] = true;
+
+    uint16_t index = cur_pos.x * width + cur_pos.y;
+
+    if (cur_pos.y != 0 && !visited_pieces[cur_pos.x][cur_pos.y - 1] && dsu_of_pieces.find_set(index) == dsu_of_pieces.find_set(index - 1)) {
+      queue.push(sf::Vector2i(cur_pos.x, cur_pos.y - 1));
+    }
+    if (cur_pos.y != width - 1 && !visited_pieces[cur_pos.x][cur_pos.y + 1] && dsu_of_pieces.find_set(index) == dsu_of_pieces.find_set(index + 1)) {
+      queue.push(sf::Vector2i(cur_pos.x, cur_pos.y + 1));
+    }
+    if (cur_pos.x != 0 && !visited_pieces[cur_pos.x - 1][cur_pos.y] && dsu_of_pieces.find_set(index) == dsu_of_pieces.find_set(index - width)) {
+      queue.push(sf::Vector2i(cur_pos.x - 1, cur_pos.y));
+    }
+    if (cur_pos.x != height - 1 && !visited_pieces[cur_pos.x + 1][cur_pos.y] && dsu_of_pieces.find_set(index) == dsu_of_pieces.find_set(index + width)) {
+      queue.push(sf::Vector2i(cur_pos.x + 1, cur_pos.y));
+    }
+  }
+
+  return pieces_in_union;
+}
+
 void puzzle::connectPieces(piece& piece_) {
-  uint16_t index = piece_.getIndex();
-  uint8_t row = piece_.getPositionInPuzzleMatrix().x;
-  uint8_t col = piece_.getPositionInPuzzleMatrix().y;
+  std::vector<sf::Vector2i> pieces_in_union = getPiecesInUnion(piece_);
 
-  if (col != 0) {
-    if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index - 1) &&
-        InRange(piece_.getPosition().x,
-                pieces[row][col - 1].getPosition().x + pieces[row][col - 1].getSize().x - 5,
-                pieces[row][col - 1].getPosition().x + pieces[row][col - 1].getSize().x + 5) &&
-        InRange(piece_.getPosition().y,
-                pieces[row][col - 1].getPosition().y - 5,
-                pieces[row][col - 1].getPosition().y + 5)) {
-      this->setPosition(pieces[row][col - 1], sf::Vector2f(piece_.getPosition().x - piece_.getSize().x,
-                                                                  piece_.getPosition().y));
-      dsu_of_pieces.union_sets(index, index - 1);
+  for (int i = 0; i < dsu_of_pieces.getSize(piece_.getIndex()); i++) {
+    piece& cur_piece = pieces[pieces_in_union[i].x][pieces_in_union[i].y];
+    uint16_t index = cur_piece.getIndex();
+    uint8_t row = cur_piece.getPositionInPuzzleMatrix().x;
+    uint8_t col = cur_piece.getPositionInPuzzleMatrix().y;
+
+    if (col != 0) {
+      if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index - 1) &&
+          InRange(cur_piece.getPosition().x,
+                  pieces[row][col - 1].getPosition().x + pieces[row][col - 1].getSize().x - 5,
+                  pieces[row][col - 1].getPosition().x + pieces[row][col - 1].getSize().x + 5) &&
+          InRange(cur_piece.getPosition().y,
+                  pieces[row][col - 1].getPosition().y - 5,
+                  pieces[row][col - 1].getPosition().y + 5)) {
+        this->setPosition(pieces[row][col - 1], sf::Vector2f(cur_piece.getPosition().x - cur_piece.getSize().x,
+                                                             cur_piece.getPosition().y));
+        dsu_of_pieces.union_sets(index, index - 1);
+
+        return;
+      }
     }
-  }
 
-  if (col != width - 1) {
-    if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index + 1) &&
-        InRange(piece_.getPosition().x,
-                pieces[row][col + 1].getPosition().x - pieces[row][col + 1].getSize().x - 5,
-                pieces[row][col + 1].getPosition().x - pieces[row][col + 1].getSize().x + 5) &&
-        InRange(piece_.getPosition().y,
-                pieces[row][col + 1].getPosition().y - 5,
-                pieces[row][col + 1].getPosition().y + 5)) {
-      this->setPosition(pieces[row][col + 1], sf::Vector2f(piece_.getPosition().x + piece_.getSize().x,
-                                                                    piece_.getPosition().y));
-      dsu_of_pieces.union_sets(index, index + 1);
+    if (col != width - 1) {
+      if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index + 1) &&
+          InRange(cur_piece.getPosition().x,
+                  pieces[row][col + 1].getPosition().x - pieces[row][col + 1].getSize().x - 5,
+                  pieces[row][col + 1].getPosition().x - pieces[row][col + 1].getSize().x + 5) &&
+          InRange(cur_piece.getPosition().y,
+                  pieces[row][col + 1].getPosition().y - 5,
+                  pieces[row][col + 1].getPosition().y + 5)) {
+        this->setPosition(pieces[row][col + 1], sf::Vector2f(cur_piece.getPosition().x + cur_piece.getSize().x,
+                                                             cur_piece.getPosition().y));
+        dsu_of_pieces.union_sets(index, index + 1);
+
+        return;
+      }
     }
-  }
 
-  if (row != 0) {
-    if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index - static_cast<uint16_t>(width)) &&
-        InRange(piece_.getPosition().x,
-                pieces[row - 1][col].getPosition().x - 5,
-                pieces[row - 1][col].getPosition().x + 5) &&
-        InRange(piece_.getPosition().y,
-                pieces[row - 1][col].getPosition().y + pieces[row - 1][col].getSize().y - 5,
-                pieces[row - 1][col].getPosition().y + pieces[row - 1][col].getSize().y + 5)) {
-      this->setPosition(pieces[row - 1][col], sf::Vector2f(piece_.getPosition().x,
-                                                                    piece_.getPosition().y - piece_.getSize().y));
-      dsu_of_pieces.union_sets(index, index - static_cast<uint16_t>(width));
+    if (row != 0) {
+      if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index - static_cast<uint16_t>(width)) &&
+          InRange(cur_piece.getPosition().x,
+                  pieces[row - 1][col].getPosition().x - 5,
+                  pieces[row - 1][col].getPosition().x + 5) &&
+          InRange(cur_piece.getPosition().y,
+                  pieces[row - 1][col].getPosition().y + pieces[row - 1][col].getSize().y - 5,
+                  pieces[row - 1][col].getPosition().y + pieces[row - 1][col].getSize().y + 5)) {
+        this->setPosition(pieces[row - 1][col], sf::Vector2f(cur_piece.getPosition().x,
+                                                             cur_piece.getPosition().y - cur_piece.getSize().y));
+        dsu_of_pieces.union_sets(index, index - static_cast<uint16_t>(width));
+
+        return;
+      }
     }
-  }
 
-  if (row != height - 1) {
-    if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index + static_cast<uint16_t>(width)) &&
-        InRange(piece_.getPosition().x,
-                pieces[row + 1][col].getPosition().x - 5,
-                pieces[row + 1][col].getPosition().x + 5) &&
-        InRange(piece_.getPosition().y,
-                pieces[row + 1][col].getPosition().y - pieces[row + 1][col].getSize().y - 5,
-                pieces[row + 1][col].getPosition().y - pieces[row + 1][col].getSize().y + 5)) {
-      this->setPosition(pieces[row + 1][col], sf::Vector2f(piece_.getPosition().x,
-                                                                    piece_.getPosition().y + piece_.getSize().y));
-      dsu_of_pieces.union_sets(index, index + static_cast<uint16_t>(width));
+    if (row != height - 1) {
+      if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index + static_cast<uint16_t>(width)) &&
+          InRange(cur_piece.getPosition().x,
+                  pieces[row + 1][col].getPosition().x - 5,
+                  pieces[row + 1][col].getPosition().x + 5) &&
+          InRange(cur_piece.getPosition().y,
+                  pieces[row + 1][col].getPosition().y - pieces[row + 1][col].getSize().y - 5,
+                  pieces[row + 1][col].getPosition().y - pieces[row + 1][col].getSize().y + 5)) {
+        this->setPosition(pieces[row + 1][col], sf::Vector2f(cur_piece.getPosition().x,
+                                                             cur_piece.getPosition().y + cur_piece.getSize().y));
+        dsu_of_pieces.union_sets(index, index + static_cast<uint16_t>(width));
+
+        return;
+      }
     }
   }
 }
