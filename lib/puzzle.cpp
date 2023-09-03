@@ -94,7 +94,9 @@ void puzzle::shuffle() {
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       pieces[i][j].setPosition(RandomPos());
-      pieces[i][j].setRotation(std::rand() % 4);
+      if (isEnableRotation()) {
+        pieces[i][j].setRotation(std::rand() % 4);
+      }
     }
   }
 }
@@ -125,6 +127,10 @@ void puzzle::setPosition(piece& piece_, sf::Vector2f pos_) {
 
 bool puzzle::isOnePieceInUnion(piece& piece_) {
   return dsu_of_pieces.getSize(piece_.getIndex()) == 1;
+}
+
+bool puzzle::isEnableRotation() {
+  return enableRotation;
 }
 
 std::vector<sf::Vector2i> puzzle::getPiecesInUnion(piece& piece_) {

@@ -51,14 +51,16 @@ class puzzle {
   sf::Texture pic;
   sf::Vector2f start_pos;
   DSU dsu_of_pieces;
+  bool enableRotation;
 
  public:
-  puzzle(uint8_t width_, uint8_t height_, sf::Texture& pic_, sf::Vector2f start_pos_): dsu_of_pieces(height_ * width_) {
+  puzzle(uint8_t width_, uint8_t height_, sf::Texture& pic_, sf::Vector2f start_pos_, bool enableRotation_): dsu_of_pieces(height_ * width_) {
     width = width_;
     height = height_;
     size = width_ * height_;
     pic = pic_;
     start_pos = start_pos_;
+    enableRotation = enableRotation_;
 
     std::vector<piece> temp;
     for (int j = 0; j < width; j++) {
@@ -95,6 +97,7 @@ class puzzle {
   void shuffle();
   void setPosition(piece& piece_, sf::Vector2f pos_);
   bool isOnePieceInUnion(piece& piece_);
+  bool isEnableRotation();
   std::vector<sf::Vector2i> getPiecesInUnion(piece& piece_);
   void connectPieces(piece& piece_);
   bool isPuzzleSolved();

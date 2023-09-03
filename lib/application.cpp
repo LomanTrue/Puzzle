@@ -8,11 +8,11 @@ int app(sf::RenderWindow& window) {
   std::string pr_dir = "D:\\Projects\\Puzzle";
 
   sf::Texture puzzle_texture;
-  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\8.jpg")) {
+  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\5.jpg")) {
     return 1;
   }
 
-  puzzle puzzle1(6, 4, puzzle_texture, sf::Vector2f(150, 150));
+  puzzle puzzle1(6, 4, puzzle_texture, sf::Vector2f(150, 150), false);
 
   sf::Clock timer;
   sf::Time time;
@@ -24,7 +24,6 @@ int app(sf::RenderWindow& window) {
   timer_text.setCharacterSize(30);
   timer_text.setFillColor(sf::Color::Red);
   timer_text.setPosition(0,0);
-  time = timer.restart();
   timer_text.setString("Time: 0.000000");
 
   window.clear();
@@ -81,7 +80,7 @@ int app(sf::RenderWindow& window) {
               }
             }
           }
-        } else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+        } else if (puzzle1.isEnableRotation() && sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
           piece* temp_piece = puzzle1.isMouseInPiece();
           if (temp_piece != nullptr && puzzle1.isOnePieceInUnion(*temp_piece)) {
             temp_piece->incRotation();
