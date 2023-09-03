@@ -14,15 +14,18 @@ class piece {
   uint8_t col; //col in puzzle matrix
   uint16_t width;
   uint16_t height;
+  uint8_t rot; //0 - 0 degrees, 1 - 90 degrees, 2 - 180 degrees, 3 - 270 degrees (clock wise)
 
  public:
   piece(sf::Sprite sprite_, uint16_t index_, uint8_t row_, uint8_t col_, uint16_t width_, uint16_t height_) {
     sprite = sprite_;
+    sprite.setOrigin(width_ / 2, height_ / 2);
     index = index_;
     row = row_;
     col = col_;
     width = width_;
     height = height_;
+    rot = 0;
   };
 
   void setPosition(sf::Vector2f pos_);
@@ -34,7 +37,9 @@ class piece {
   uint16_t getIndex();
   sf::Vector2i getPositionInPuzzleMatrix();
   sf::Vector2i getSize();
-
+  uint8_t getRotation();
+  void setRotation(uint8_t rot_);
+  void incRotation();
 };
 
 class puzzle {
@@ -89,6 +94,7 @@ class puzzle {
   piece* isMouseInPiece();
   void shuffle();
   void setPosition(piece& piece_, sf::Vector2f pos_);
+  bool isOnePieceInUnion(piece& piece_);
   std::vector<sf::Vector2i> getPiecesInUnion(piece& piece_);
   void connectPieces(piece& piece_);
   bool isPuzzleSolved();

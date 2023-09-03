@@ -8,11 +8,11 @@ int app(sf::RenderWindow& window) {
   std::string pr_dir = "D:\\Projects\\Puzzle";
 
   sf::Texture puzzle_texture;
-  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\5.jpg")) {
+  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\4.jpg")) {
     return 1;
   }
 
-  puzzle puzzle1(2, 2, puzzle_texture, sf::Vector2f(100, 100));
+  puzzle puzzle1(4, 4, puzzle_texture, sf::Vector2f(100, 100));
 
   window.clear();
   puzzle1.draw(window);
@@ -31,33 +31,42 @@ int app(sf::RenderWindow& window) {
       }
 
       if (event.type == sf::Event::MouseButtonPressed) {
-        piece* temp_piece = puzzle1.isMouseInPiece();
-        if (temp_piece != nullptr) {
-          sf::Vector2f mouse_in_piece_cords = sf::Vector2f(sf::Mouse::getPosition()) - temp_piece->getPosition();
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+          piece* temp_piece = puzzle1.isMouseInPiece();
+          if (temp_piece != nullptr) {
+            sf::Vector2f mouse_in_piece_cords = sf::Vector2f(sf::Mouse::getPosition()) - temp_piece->getPosition();
 
-          while (true) {
-            if (window.pollEvent(event) && event.type == sf::Event::MouseButtonReleased) {
-              break;
-            }
-
-            puzzle1.connectPieces(*temp_piece);
-            puzzle1.setPosition(*temp_piece, sf::Vector2f(sf::Mouse::getPosition()) - mouse_in_piece_cords);
-            window.clear();
-            puzzle1.draw(window);
-            window.display();
-
-            if (puzzle1.isPuzzleSolved()) {
-              sf::SoundBuffer sound_buffer;
-              if (!sound_buffer.loadFromFile(pr_dir + "\\sounds\\applause.mp3")) {
-                return 1;
+            while (true) {
+              if (window.pollEvent(event) && event.type == sf::Event::MouseButtonReleased) {
+                break;
               }
 
-              sf::Sound sound(sound_buffer);
-              sound.play();
-              sf::sleep(sf::seconds(12));
-              window.close();
-              break;
+              puzzle1.connectPieces(*temp_piece);
+              puzzle1.setPosition(*temp_piece, sf::Vector2f(sf::Mouse::getPosition()) - mouse_in_piece_cords);
+              window.clear();
+              puzzle1.draw(window);
+              window.display();
+
+              if (puzzle1.isPuzzleSolved()) {
+                /*
+                sf::SoundBuffer sound_buffer;
+                if (!sound_buffer.loadFromFile(pr_dir + "\\sounds\\applause.mp3")) {
+                  return 1;
+                }
+
+                sf::Sound sound(sound_buffer);
+                sound.play();
+                */
+                sf::sleep(sf::seconds(2));
+                window.close();
+                break;
+              }
             }
+          }
+        } else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+          piece* temp_piece = puzzle1.isMouseInPiece();
+          if (temp_piece != nullptr && puzzle1.isOnePieceInUnion(*temp_piece)) {
+            temp_piece->incRotation();
           }
         }
       }

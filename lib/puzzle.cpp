@@ -1,6 +1,6 @@
 #include "puzzle.h"
 
-sf::Vector2i Random() {
+sf::Vector2i RandomPos() {
   int a = std::rand() % 1820;
   int b = std::rand() % 960;
 
@@ -37,8 +37,8 @@ sf::Sprite piece::draw() {
 }
 
 bool piece::inPiece() {
-  if (InRange(static_cast<float>(sf::Mouse::getPosition().x), sprite.getPosition().x, sprite.getPosition().x + sprite.getTextureRect().width) &&
-      InRange(static_cast<float>(sf::Mouse::getPosition().y), sprite.getPosition().y, sprite.getPosition().y + sprite.getTextureRect().height)) {
+  if (InRange(static_cast<float>(sf::Mouse::getPosition().x), sprite.getPosition().x - width / 2, sprite.getPosition().x + width / 2) &&
+      InRange(static_cast<float>(sf::Mouse::getPosition().y), sprite.getPosition().y - height / 2, sprite.getPosition().y + height / 2)) {
     return true;
   } else {
     return false;
@@ -55,6 +55,19 @@ sf::Vector2i piece::getPositionInPuzzleMatrix() {
 
 sf::Vector2i piece::getSize() {
   return sf::Vector2i(width, height);
+}
+
+uint8_t piece::getRotation() {
+  return rot;
+}
+
+void piece::setRotation(uint8_t rot_) {
+  sprite.rotate(90 * (rot_ - rot));
+  rot = rot_;
+}
+
+void piece::incRotation() {
+  setRotation((rot + 1) % 4);
 }
 
 void puzzle::draw(sf::RenderWindow& window) {
@@ -80,7 +93,8 @@ piece* puzzle::isMouseInPiece() {
 void puzzle::shuffle() {
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
-      pieces[i][j].setPosition(Random());
+      pieces[i][j].setPosition(RandomPos());
+      pieces[i][j].setRotation(std::rand() % 4);
     }
   }
 }
@@ -107,6 +121,10 @@ void puzzle::setPosition(piece& piece_, sf::Vector2f pos_) {
       }
     }
   }
+}
+
+bool puzzle::isOnePieceInUnion(piece& piece_) {
+  return dsu_of_pieces.getSize(piece_.getIndex()) == 1;
 }
 
 std::vector<sf::Vector2i> puzzle::getPiecesInUnion(piece& piece_) {
@@ -159,6 +177,7 @@ void puzzle::connectPieces(piece& piece_) {
 
     if (col != 0) {
       if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index - 1) &&
+          cur_piece.getRotation() == 0 && pieces[row][col - 1].getRotation() == 0 &&
           InRange(cur_piece.getPosition().x,
                   pieces[row][col - 1].getPosition().x + pieces[row][col - 1].getSize().x - 5,
                   pieces[row][col - 1].getPosition().x + pieces[row][col - 1].getSize().x + 5) &&
@@ -175,6 +194,7 @@ void puzzle::connectPieces(piece& piece_) {
 
     if (col != width - 1) {
       if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index + 1) &&
+          cur_piece.getRotation() == 0 && pieces[row][col + 1].getRotation() == 0 &&
           InRange(cur_piece.getPosition().x,
                   pieces[row][col + 1].getPosition().x - pieces[row][col + 1].getSize().x - 5,
                   pieces[row][col + 1].getPosition().x - pieces[row][col + 1].getSize().x + 5) &&
@@ -191,6 +211,7 @@ void puzzle::connectPieces(piece& piece_) {
 
     if (row != 0) {
       if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index - static_cast<uint16_t>(width)) &&
+          cur_piece.getRotation() == 0 && pieces[row - 1][col].getRotation() == 0 &&
           InRange(cur_piece.getPosition().x,
                   pieces[row - 1][col].getPosition().x - 5,
                   pieces[row - 1][col].getPosition().x + 5) &&
@@ -207,6 +228,7 @@ void puzzle::connectPieces(piece& piece_) {
 
     if (row != height - 1) {
       if (dsu_of_pieces.find_set(index) != dsu_of_pieces.find_set(index + static_cast<uint16_t>(width)) &&
+          cur_piece.getRotation() == 0 && pieces[row + 1][col].getRotation() == 0 &&
           InRange(cur_piece.getPosition().x,
                   pieces[row + 1][col].getPosition().x - 5,
                   pieces[row + 1][col].getPosition().x + 5) &&
