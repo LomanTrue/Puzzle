@@ -3,8 +3,11 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 
 #include "puzzle.cpp"
+#include "button.cpp"
 
-int app(sf::RenderWindow& window) {
+int hello_screen(sf::RenderWindow& window);
+
+int puzzle_screen(sf::RenderWindow& window) {
   std::string pr_dir = "D:\\Projects\\Puzzle";
 
   sf::Texture puzzle_texture;
@@ -37,6 +40,7 @@ int app(sf::RenderWindow& window) {
   timer.restart();
 
   sf::Vector2i mouse_pos;
+  bool to_menu = false;
   bool is_paused = false;
   float time_on_pause = 0;
   float buffer_time = 0;
@@ -53,7 +57,8 @@ int app(sf::RenderWindow& window) {
 
       if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Key::Escape) {
-          window.close();
+          to_menu = true;
+          break;
         }
 
         if (event.key.code == sf::Keyboard::Key::P) {
@@ -134,6 +139,66 @@ int app(sf::RenderWindow& window) {
     puzzle1.draw(window);
     timer_text.setString("Time: " + std::to_string(time.asSeconds() + time_on_pause));
     window.draw(timer_text);
+    window.display();
+  }
+
+  if (to_menu) {
+    hello_screen(window);
+  }
+
+  return 0;
+}
+
+int hello_screen(sf::RenderWindow& window) {
+  std::string pr_dir = "D:\\Projects\\Puzzle";
+
+  button to_level_b(30, 30, 200, 50, "To levels"); //button 'To levels'
+  button exit_b(30, 100, 200, 50, "Exit"); //button 'Exit'
+  sf::Vector2i mouse_pos;
+
+  sf::Texture bg_texture;
+  if (!bg_texture.loadFromFile(pr_dir + "\\pictures\\bg.jpg")) {
+    return 1;
+  }
+  sf::Sprite bg_sprite(bg_texture);
+  bg_sprite.setPosition(0,0);
+  bg_sprite.setScale(static_cast<float>(window.getSize().x) / static_cast<float>(bg_sprite.getTexture()->getSize().x),
+                     static_cast<float>(window.getSize().y) / static_cast<float>(bg_sprite.getTexture()->getSize().y));
+  while (window.isOpen()) {
+    sf::Event event;
+
+    if (event.mouseMove.x != 0 && event.mouseMove.x != 1) {
+      mouse_pos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
+    }
+
+    if (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
+        window.close();
+      }
+
+      if (event.type == sf::Event::MouseButtonPressed) {
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+          if (event.mouseMove.x != 0 && event.mouseMove.x != 1) {
+            mouse_pos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
+          }
+
+          if (to_level_b.inButton(mouse_pos)) {
+            puzzle_screen(window);
+            break;
+          }
+
+          if (exit_b.inButton(mouse_pos)) {
+            window.close();
+            break;
+          }
+        }
+      }
+    }
+
+    window.clear();
+    window.draw(bg_sprite);
+    to_level_b.draw(window);
+    exit_b.draw(window);
     window.display();
   }
 
