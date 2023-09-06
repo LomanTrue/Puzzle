@@ -74,10 +74,8 @@ void piece::incRotation() {
 }
 
 void puzzle::draw(sf::RenderWindow& window) {
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
-      window.draw(pieces[i][j].draw());
-    }
+  for (int i = 0; i < size; i++) {
+    window.draw(pieces[random_pieces[i].first][random_pieces[i].second].draw());
   }
 }
 
