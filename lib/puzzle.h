@@ -3,6 +3,7 @@
 #include <memory>
 #include <queue>
 #include <vector>
+#include <algorithm>
 
 #include "DSU.cpp"
 
@@ -48,6 +49,7 @@ class puzzle {
   uint8_t height; //count of pieces in one column
   uint16_t size; //count of pieces
   std::vector<std::vector<piece>> pieces;
+  std::vector<std::pair<int,int>> random_pieces; //pieces of puzzle in random order
   sf::Texture pic;
   sf::Vector2f start_pos;
   DSU dsu_of_pieces;
@@ -61,6 +63,13 @@ class puzzle {
     pic = pic_;
     start_pos = start_pos_;
     enableRotation = enableRotation_;
+
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        random_pieces.push_back(std::make_pair(i, j));
+      }
+    }
+    std::random_shuffle(random_pieces.begin(), random_pieces.end());
 
     std::vector<piece> temp;
     for (int j = 0; j < width; j++) {
