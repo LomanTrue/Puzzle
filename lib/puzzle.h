@@ -33,7 +33,7 @@ class piece {
   sf::Vector2f getPosition();
   void setTexture(sf::Texture texture_, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
   sf::Sprite draw();
-  bool inPiece();
+  bool inPiece(sf::Vector2i mouse_pos);
   uint16_t getIndex();
   sf::Vector2i getPositionInPuzzleMatrix();
   sf::Vector2i getSize();
@@ -93,7 +93,7 @@ class puzzle {
   }
 
   void draw(sf::RenderWindow& window);
-  piece* isMouseInPiece();
+  piece* isMouseInPiece(sf::Vector2i mouse_pos);
   void shuffle();
   void setPosition(piece& piece_, sf::Vector2f pos_);
   bool isOnePieceInUnion(piece& piece_);

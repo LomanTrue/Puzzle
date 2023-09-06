@@ -8,17 +8,17 @@ int app(sf::RenderWindow& window) {
   std::string pr_dir = "D:\\Projects\\Puzzle";
 
   sf::Texture puzzle_texture;
-  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\5.jpg")) {
+  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\3.png")) {
     return 1;
   }
 
-  puzzle puzzle1(6, 4, puzzle_texture, sf::Vector2f(150, 150), false);
+  puzzle puzzle1(2, 2, puzzle_texture, sf::Vector2f(150, 150), true);
 
   sf::Clock timer;
   sf::Time time;
 
   sf::Font font;
-  if (font.loadFromFile(pr_dir + "\\fonts\\1.otf"));
+  if (font.loadFromFile(pr_dir + "\\fonts\\3.ttf"));
   sf::Text timer_text;
   timer_text.setFont(font);
   timer_text.setCharacterSize(30);
@@ -36,8 +36,12 @@ int app(sf::RenderWindow& window) {
   puzzle1.shuffle();
   timer.restart();
 
+  sf::Vector2i mouse_pos;
   while (window.isOpen()) {
     sf::Event event;
+    if (event.mouseMove.x != 0 && event.mouseMove.x != 1) {
+      mouse_pos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
+    }
 
     if (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
@@ -45,23 +49,36 @@ int app(sf::RenderWindow& window) {
       }
 
       if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseMove.x != 0 && event.mouseMove.x != 1) {
+          mouse_pos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
+        }
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-          piece* temp_piece = puzzle1.isMouseInPiece();
+          piece* temp_piece = puzzle1.isMouseInPiece(mouse_pos);
           if (temp_piece != nullptr) {
-            sf::Vector2f mouse_in_piece_cords = sf::Vector2f(sf::Mouse::getPosition()) - temp_piece->getPosition();
+            sf::Vector2f mouse_in_piece_cords;
+            mouse_in_piece_cords.x = static_cast<float>(mouse_pos.x) - temp_piece->getPosition().x;
+            mouse_in_piece_cords.y = static_cast<float>(mouse_pos.y) - temp_piece->getPosition().y;
 
             while (true) {
               if (window.pollEvent(event) && event.type == sf::Event::MouseButtonReleased) {
                 break;
               }
 
+              if (event.mouseMove.x != 0 && event.mouseMove.x != 1) {
+                mouse_pos = sf::Vector2i (event.mouseMove.x, event.mouseMove.y);
+              }
               puzzle1.connectPieces(*temp_piece);
-              puzzle1.setPosition(*temp_piece, sf::Vector2f(sf::Mouse::getPosition()) - mouse_in_piece_cords);
+
+              sf::Vector2f piece_new_pos;
+              piece_new_pos.x = static_cast<float>(mouse_pos.x) - mouse_in_piece_cords.x;
+              piece_new_pos.y = static_cast<float>(mouse_pos.y) - mouse_in_piece_cords.y;
+              puzzle1.setPosition(*temp_piece, piece_new_pos);
+
               window.clear();
+              puzzle1.draw(window);
               time = timer.getElapsedTime();
               timer_text.setString("Time: " + std::to_string(time.asSeconds()));
               window.draw(timer_text);
-              puzzle1.draw(window);
               window.display();
 
               if (puzzle1.isPuzzleSolved()) {
@@ -81,7 +98,7 @@ int app(sf::RenderWindow& window) {
             }
           }
         } else if (puzzle1.isEnableRotation() && sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-          piece* temp_piece = puzzle1.isMouseInPiece();
+          piece* temp_piece = puzzle1.isMouseInPiece(mouse_pos);
           if (temp_piece != nullptr && puzzle1.isOnePieceInUnion(*temp_piece)) {
             temp_piece->incRotation();
           }
@@ -91,9 +108,9 @@ int app(sf::RenderWindow& window) {
 
     window.clear();
     time = timer.getElapsedTime();
+    puzzle1.draw(window);
     timer_text.setString("Time: " + std::to_string(time.asSeconds()));
     window.draw(timer_text);
-    puzzle1.draw(window);
     window.display();
   }
 

@@ -36,9 +36,9 @@ sf::Sprite piece::draw() {
   return sprite;
 }
 
-bool piece::inPiece() {
-  if (InRange(static_cast<float>(sf::Mouse::getPosition().x), sprite.getPosition().x - width / 2, sprite.getPosition().x + width / 2) &&
-      InRange(static_cast<float>(sf::Mouse::getPosition().y), sprite.getPosition().y - height / 2, sprite.getPosition().y + height / 2)) {
+bool piece::inPiece(sf::Vector2i mouse_pos) {
+  if (InRange(static_cast<float>(mouse_pos.x), sprite.getPosition().x - width / 2, sprite.getPosition().x + width / 2) &&
+      InRange(static_cast<float>(mouse_pos.y), sprite.getPosition().y - height / 2, sprite.getPosition().y + height / 2)) {
     return true;
   } else {
     return false;
@@ -62,7 +62,10 @@ uint8_t piece::getRotation() {
 }
 
 void piece::setRotation(uint8_t rot_) {
-  sprite.rotate(90 * (rot_ - rot));
+  sprite.setRotation(90 * rot_);
+  if (abs(rot - rot_) % 2 == 1) {
+    std::swap(width, height);
+  }
   rot = rot_;
 }
 
@@ -78,10 +81,10 @@ void puzzle::draw(sf::RenderWindow& window) {
   }
 }
 
-piece* puzzle::isMouseInPiece() {
+piece* puzzle::isMouseInPiece(sf::Vector2i mouse_pos) {
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
-      if (pieces[i][j].inPiece()) {
+      if (pieces[i][j].inPiece(mouse_pos)) {
         return &(pieces[i][j]);
       }
     }
