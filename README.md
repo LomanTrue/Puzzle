@@ -6,7 +6,7 @@ The project is still in development
 
 # Install
 
-Project locate in branch 'dev'. Clone this repository to your computer
+Project is located in branch 'dev'. Clone this repository to your computer
 
 # Customize
 
