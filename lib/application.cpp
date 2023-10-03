@@ -5,14 +5,37 @@
 #include "puzzle.cpp"
 #include "button.cpp"
 
-int hello_screen(sf::RenderWindow& window);
+int death(sf::RenderWindow& window) {
+  std::string anim_dir = "D:\\Projects\\Puzzle\\animations\\freddy\\Withered Freddy Jumpscare_0";
 
-int puzzle_screen(sf::RenderWindow& window) {
+  sf::Texture anim_texture;
+  sf::Sprite anim_sprite;
+
+  for (int i = 39; i <= 72; i++) {
+    if (!anim_texture.loadFromFile(anim_dir + std::to_string(i) + ".jpg")) {
+      return 1;
+    }
+    anim_sprite.setPosition(0,0);
+    anim_sprite.setTexture(anim_texture);
+    anim_sprite.setScale(static_cast<float>(window.getSize().x) / static_cast<float>(anim_sprite.getTexture()->getSize().x),
+                       static_cast<float>(window.getSize().y) / static_cast<float>(anim_sprite.getTexture()->getSize().y));
+    window.clear();
+    window.draw(anim_sprite);
+    window.display();
+    sf::sleep(sf::milliseconds(60));
+  }
+
+  return 0;
+}
+
+int puzzle_screen(sf::RenderWindow& window, uint16_t num_image) {
   std::string pr_dir = "D:\\Projects\\Puzzle";
 
   sf::Texture puzzle_texture;
-  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\3.png")) {
-    return 1;
+  if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\" + std::to_string(num_image) + ".png")) {
+    if (!puzzle_texture.loadFromFile(pr_dir + "\\pictures\\" + std::to_string(num_image) + ".jpg")) {
+      return 1;
+    }
   }
 
   puzzle puzzle1(3, 3, puzzle_texture, sf::Vector2f(150, 150), true);
@@ -40,7 +63,6 @@ int puzzle_screen(sf::RenderWindow& window) {
   timer.restart();
 
   sf::Vector2i mouse_pos;
-  bool to_menu = false;
   bool is_paused = false;
   float time_on_pause = 0;
   float buffer_time = 0;
@@ -57,7 +79,6 @@ int puzzle_screen(sf::RenderWindow& window) {
 
       if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Key::Escape) {
-          to_menu = true;
           break;
         }
 
@@ -103,7 +124,7 @@ int puzzle_screen(sf::RenderWindow& window) {
               window.clear();
               puzzle1.draw(window);
               time = timer.getElapsedTime();
-              timer_text.setString("Time: " + std::to_string(time.asSeconds() + time_on_pause));
+              timer_text.setString("Time: " + std::to_string(60 - time.asSeconds() + time_on_pause));
               window.draw(timer_text);
               window.display();
 
@@ -137,13 +158,96 @@ int puzzle_screen(sf::RenderWindow& window) {
       time = timer.getElapsedTime();
     }
     puzzle1.draw(window);
-    timer_text.setString("Time: " + std::to_string(time.asSeconds() + time_on_pause));
+    if ((time.asSeconds() + time_on_pause) >= 60 && !is_paused) {
+      death(window);
+      break;
+    }
+    timer_text.setString("Time: " + std::to_string(60 - time.asSeconds() + time_on_pause));
     window.draw(timer_text);
     window.display();
   }
 
-  if (to_menu) {
-    hello_screen(window);
+  return 0;
+}
+
+int levels_screen(sf::RenderWindow& window) {
+  sf::Texture puzzle_texture;
+  uint16_t cur_image = 0;
+  uint16_t max_image = 8;
+  sf::Sprite* puzzle_sprite = new sf::Sprite;
+
+  if (!puzzle_texture.loadFromFile("D:\\Projects\\Puzzle\\pictures\\" + std::to_string(cur_image + 1) + ".jpg")) {
+    if (!puzzle_texture.loadFromFile("D:\\Projects\\Puzzle\\pictures\\" + std::to_string(cur_image + 1) + ".png")) {
+      return 1;
+    }
+  }
+
+  puzzle_sprite->setTexture(puzzle_texture);
+  puzzle_sprite->setOrigin(puzzle_texture.getSize().x / 2, puzzle_texture.getSize().y / 2);
+  puzzle_sprite->setPosition(window.getSize().x / 2, window.getSize().y / 2);
+  //puzzle_sprite->setScale(static_cast<float>(window.getSize().x) / static_cast<float>(puzzle_texture->getSize().x) / 3,
+                         //static_cast<float>(window.getSize().y) / static_cast<float>(puzzle_texture->getSize().y) / 3);
+
+  while (window.isOpen()) {
+    sf::Event event;
+
+    if (window.pollEvent(event)) {
+      if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::Right) {
+          cur_image = (cur_image + 1) % max_image;
+
+          if (!puzzle_texture.loadFromFile("D:\\Projects\\Puzzle\\pictures\\" + std::to_string(cur_image + 1) + ".jpg")) {
+            if (!puzzle_texture.loadFromFile("D:\\Projects\\Puzzle\\pictures\\" + std::to_string(cur_image + 1) + ".png")) {
+              return 1;
+            }
+          }
+
+          sf::Sprite* temp_sprite = new sf::Sprite;
+          delete puzzle_sprite;
+          puzzle_sprite = temp_sprite;
+          puzzle_sprite->setTexture(puzzle_texture);
+          puzzle_sprite->setOrigin(puzzle_texture.getSize().x / 2, puzzle_texture.getSize().y / 2);
+          puzzle_sprite->setPosition(window.getSize().x / 2, window.getSize().y / 2);
+          //puzzle_sprite->setScale(static_cast<float>(window.getSize().x) / static_cast<float>(puzzle_texture->getSize().x) / 2,
+                                 //static_cast<float>(window.getSize().y) / static_cast<float>(puzzle_texture->getSize().y) / 2);
+        }
+
+        if (event.key.code == sf::Keyboard::Left) {
+          if (cur_image == 0) {
+            cur_image = max_image - 1;
+          } else {
+            cur_image--;
+          }
+
+          if (!puzzle_texture.loadFromFile("D:\\Projects\\Puzzle\\pictures\\" + std::to_string(cur_image + 1) + ".jpg")) {
+            if (!puzzle_texture.loadFromFile("D:\\Projects\\Puzzle\\pictures\\" + std::to_string(cur_image + 1) + ".png")) {
+              return 1;
+            }
+          }
+
+          sf::Sprite* temp_sprite = new sf::Sprite;
+          delete puzzle_sprite;
+          puzzle_sprite = temp_sprite;
+          puzzle_sprite->setTexture(puzzle_texture);
+          puzzle_sprite->setOrigin(puzzle_texture.getSize().x / 2, puzzle_texture.getSize().y / 2);
+          puzzle_sprite->setPosition(window.getSize().x / 2, window.getSize().y / 2);
+          //puzzle_sprite->setScale(static_cast<float>(window.getSize().x) / static_cast<float>(puzzle_texture->getSize().x) / 2,
+                                 //static_cast<float>(window.getSize().y) / static_cast<float>(puzzle_texture->getSize().y) / 2);
+        }
+
+        if (event.key.code == sf::Keyboard::Enter) {
+          puzzle_screen(window, cur_image + 1);
+        }
+
+        if (event.key.code == sf::Keyboard::Escape) {
+          break;
+        }
+      }
+    }
+
+    window.clear();
+    window.draw(*puzzle_sprite);
+    window.display();
   }
 
   return 0;
@@ -183,8 +287,7 @@ int hello_screen(sf::RenderWindow& window) {
           }
 
           if (to_level_b.inButton(mouse_pos)) {
-            puzzle_screen(window);
-            break;
+            levels_screen(window);
           }
 
           if (exit_b.inButton(mouse_pos)) {
