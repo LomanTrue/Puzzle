@@ -4,7 +4,7 @@ Popular game implemented in C++
 
 Project used an external library SFML (https://www.sfml-dev.org)
 
-Project is still in development
+The project is still in development
 
 # Install
 
