@@ -2,6 +2,8 @@
 
 Popular game implemented in C++
 
+Project used an external library SFML (https://www.sfml-dev.org)
+
 The project is still in development
 
 # Install
